@@ -56,6 +56,8 @@
     <script>
         const canvas = document.getElementById("gameCanvas");
         const ctx = canvas.getContext("2d");
+        const catImg = new Image();
+        catImg.src = "lightbrown_icon.png";
 
         // === 1. 玩家角色數值 ===
         let player = {
@@ -277,43 +279,23 @@
             ctx.fillStyle = "red";
             ctx.fillRect(0, 0, canvas.width, 10);
 
-            // 畫貓貓
+           // 畫貓貓
             if (invulnerableTimer % 8 < 4) { 
-                let centerX = player.x + player.width / 2;
-                let centerY = player.y + player.height / 2;
-                let radius = player.width / 2;
+                ctx.save(); // 儲存 Canvas 目前嘅狀態
 
-                ctx.fillStyle = "#FFE74C"; 
-                ctx.beginPath();
-                ctx.moveTo(centerX - radius, centerY - radius + 5); ctx.lineTo(centerX - radius - 2, centerY - radius - 6); ctx.lineTo(centerX - 2, centerY - radius + 2); ctx.fill();
-                ctx.beginPath();
-                ctx.moveTo(centerX + radius, centerY - radius + 5); 
-                ctx.lineTo(centerX + radius + 2, centerY - radius - 6); 
-                ctx.lineTo(centerX + 2, centerY - radius + 2); 
-                ctx.fill();
+                if (player.facing === "left") {
+                    // 如果貓貓向左行，我哋將 Canvas 左右反轉嚟畫
+                    ctx.translate(player.x + player.width, player.y);
+                    ctx.scale(-1, 1);
+                    
+                    // 喺反轉咗嘅座標系統 (0, 0) 位置畫貓貓
+                    ctx.drawImage(catImg, 0, 0, player.width, player.height);
+                } else {
+                    // 如果向右行，就正常咁畫出嚟
+                    ctx.drawImage(catImg, player.x, player.y, player.width, player.height);
+                }
 
-                // 畫貓面
-                ctx.beginPath();
-                ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
-                ctx.fill();
-
-                // 眼睛
-                ctx.fillStyle = "#000000";
-                let eyeOffsetX = player.facing === "left" ? -4 : 2; 
-                
-                ctx.beginPath();
-                ctx.arc(centerX - 4 + eyeOffsetX, centerY - 2, 2, 0, Math.PI * 2);
-                ctx.fill();
-                
-                ctx.beginPath();
-                ctx.arc(centerX + 4 + eyeOffsetX, centerY - 2, 2, 0, Math.PI * 2);
-                ctx.fill();
-
-                // 貓鼻
-                ctx.fillStyle = "#FF8A80";
-                ctx.beginPath();
-                ctx.arc(centerX + (player.facing === "left" ? -2 : 1), centerY + 2, 1.5, 0, Math.PI * 2);
-                ctx.fill();
+                ctx.restore(); // 恢復 Canvas 狀態，防止後面啲樓梯跟住一齊反轉
             }
 
             // 畫樓梯
